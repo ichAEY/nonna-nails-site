@@ -190,10 +190,8 @@ export default function Home() {
   const [showMobileBooking, setShowMobileBooking] = useState(true);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [selectedWork, setSelectedWork] = useState<number | null>(null);
-  const [isMobilePortfolio, setIsMobilePortfolio] = useState(false);
   const worksViewportRef = useRef<HTMLDivElement>(null);
   const worksRailRef = useRef<HTMLDivElement>(null);
-  const worksOffsetRef = useRef(0);
   const worksMobileReadyRef = useRef(false);
   const worksTouchRef = useRef({ active: false, pointerId: -1, startX: 0, startY: 0, moved: false });
   const worksResumeAtRef = useRef(0);
@@ -232,31 +230,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const mobilePortfolio = window.matchMedia("(max-width: 820px)");
-    const updatePortfolioMode = () => {
-      setIsMobilePortfolio(mobilePortfolio.matches);
-      worksMobileReadyRef.current = false;
-      if (!mobilePortfolio.matches) {
-        worksTouchRef.current.active = false;
-        worksTouchRef.current.moved = false;
-        setSelectedWork(null);
-      }
-    };
-
-    updatePortfolioMode();
-    mobilePortfolio.addEventListener("change", updatePortfolioMode);
-    return () => mobilePortfolio.removeEventListener("change", updatePortfolioMode);
-  }, []);
-
-  useEffect(() => {
     let animationFrame = 0;
     let previousTime = performance.now();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const normalizeOffset = (offset: number, cycleWidth: number) => {
-      if (!cycleWidth) return 0;
-      return ((offset % cycleWidth) - cycleWidth) % cycleWidth;
-    };
 
     const animate = (time: number) => {
       const rail = worksRailRef.current;
@@ -265,29 +241,22 @@ export default function Home() {
         const sets = rail.querySelectorAll<HTMLElement>(".worksSet");
         const cycleWidth = sets.length > 1 ? sets[1].offsetLeft - sets[0].offsetLeft : 0;
 
-        if (isMobilePortfolio) {
-          rail.style.transform = "none";
-          if (cycleWidth) {
-            if (!worksMobileReadyRef.current) {
-              viewport.scrollLeft = cycleWidth;
-              worksMobileReadyRef.current = true;
-            }
-
-            const canMove = !worksTouchRef.current.active && time >= worksResumeAtRef.current;
-            if (canMove) {
-              if (viewport.scrollLeft < cycleWidth * 0.5) viewport.scrollLeft += cycleWidth;
-              if (viewport.scrollLeft > cycleWidth * 1.5) viewport.scrollLeft -= cycleWidth;
-            }
-
-            if (canMove && !reduceMotion) {
-              viewport.scrollLeft += Math.min(time - previousTime, 50) * 0.032;
-            }
+        rail.style.transform = "none";
+        if (cycleWidth) {
+          if (!worksMobileReadyRef.current) {
+            viewport.scrollLeft = cycleWidth;
+            worksMobileReadyRef.current = true;
           }
-        } else {
-          viewport.scrollLeft = 0;
-          if (!reduceMotion) worksOffsetRef.current -= Math.min(time - previousTime, 50) * 0.032;
-          worksOffsetRef.current = normalizeOffset(worksOffsetRef.current, cycleWidth);
-          rail.style.transform = `translate3d(${worksOffsetRef.current}px, 0, 0)`;
+
+          const canMove = !worksTouchRef.current.active && time >= worksResumeAtRef.current;
+          if (canMove) {
+            if (viewport.scrollLeft < cycleWidth * 0.5) viewport.scrollLeft += cycleWidth;
+            if (viewport.scrollLeft > cycleWidth * 1.5) viewport.scrollLeft -= cycleWidth;
+          }
+
+          if (canMove && !reduceMotion) {
+            viewport.scrollLeft += Math.min(time - previousTime, 50) * 0.032;
+          }
         }
       }
       previousTime = time;
@@ -296,7 +265,7 @@ export default function Home() {
 
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [isMobilePortfolio]);
+  }, []);
 
   useEffect(() => {
     if (!isGalleryOpen && selectedWork === null) return;
@@ -318,7 +287,7 @@ export default function Home() {
   }, [isGalleryOpen, selectedWork]);
 
   const handleWorksPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isMobilePortfolio || event.button !== 0) return;
+    if (event.button !== 0) return;
     worksTouchRef.current = {
       active: true,
       pointerId: event.pointerId,
@@ -344,7 +313,7 @@ export default function Home() {
   };
 
   const openWork = (index: number) => {
-    if (isMobilePortfolio && !worksTouchRef.current.moved) setSelectedWork(index);
+    if (!worksTouchRef.current.moved) setSelectedWork(index);
   };
 
   return (
@@ -412,10 +381,10 @@ export default function Home() {
           className="worksViewport reveal"
           ref={worksViewportRef}
           data-reveal
-          onPointerDown={isMobilePortfolio ? handleWorksPointerDown : undefined}
-          onPointerMove={isMobilePortfolio ? handleWorksPointerMove : undefined}
-          onPointerUp={isMobilePortfolio ? handleWorksPointerEnd : undefined}
-          onPointerCancel={isMobilePortfolio ? handleWorksPointerEnd : undefined}
+          onPointerDown={handleWorksPointerDown}
+          onPointerMove={handleWorksPointerMove}
+          onPointerUp={handleWorksPointerEnd}
+          onPointerCancel={handleWorksPointerEnd}
           aria-label="Галерея работ Нонны"
         >
           <div className="worksRail" ref={worksRailRef}>
@@ -427,7 +396,6 @@ export default function Home() {
                       className="imageWrap"
                       type="button"
                       onClick={() => openWork(index)}
-                      disabled={!isMobilePortfolio}
                       tabIndex={set > 0 ? -1 : undefined}
                       aria-label={`Увеличить работу Нонны ${index + 1}`}
                     >
