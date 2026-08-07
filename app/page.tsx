@@ -320,13 +320,6 @@ export default function Home() {
             <span className="galleryButtonArrow" aria-hidden="true">↗︎</span>
           </button>
         </div>
-        <div className="worksGalleryAction reveal" data-reveal>
-          <button className="galleryButton" type="button" onClick={() => setSelectedWork(0)}>
-            <span>Смотреть все работы</span>
-            <span className="galleryButtonArrow" aria-hidden="true">↗︎</span>
-          </button>
-          <small>{works.length} работ в галерее</small>
-        </div>
       </section>
 
       {isGalleryOpen && (
