@@ -369,7 +369,7 @@ export default function Home() {
           </div>
           <h1>
             <span>Маникюр</span>
-            <span><em>с вниманием</em></span>
+            <span className="heroAccentLine"><em>с вниманием</em></span>
             <span>к деталям</span>
           </h1>
           <p className="heroLead">Аккуратная работа, стерильные инструменты и спокойная атмосфера — без спешки и компромиссов.</p>
@@ -388,7 +388,15 @@ export default function Home() {
       </section>
 
       <div className="marquee" aria-label="Безопасность, стерильность, аккуратность и комфорт">
-        <div>{[1, 2].map((set) => <span key={set}>Безопасность <b>·</b> Стерильность <b>·</b> Аккуратность <b>·</b> Комфорт <b>·</b> </span>)}</div>
+        <div className="marqueeTrack" aria-hidden="true">
+          {[0, 1].map((set) => (
+            <div className="marqueeSet" key={set}>
+              {[0, 1, 2].map((repeat) => (
+                <span key={repeat}>Безопасность <b>·</b> Стерильность <b>·</b> Аккуратность <b>·</b> Комфорт <b>·</b> </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <section className="worksSection" id="works">
@@ -428,6 +436,13 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+        <div className="worksGalleryAction reveal" data-reveal>
+          <button className="galleryButton" type="button" onClick={() => setSelectedWork(0)}>
+            <span>Смотреть все работы</span>
+            <span className="galleryButtonArrow" aria-hidden="true">↗︎</span>
+          </button>
+          <small>{works.length} работ в галерее</small>
         </div>
       </section>
 
