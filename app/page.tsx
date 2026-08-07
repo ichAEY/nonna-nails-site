@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const hands = [
   {
@@ -188,14 +188,8 @@ const reviews = [
 export default function Home() {
   const [service, setService] = useState<"hands" | "feet">("hands");
   const [showMobileBooking, setShowMobileBooking] = useState(true);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [selectedWork, setSelectedWork] = useState<number | null>(null);
-  const [isMobilePortfolio, setIsMobilePortfolio] = useState(false);
-  const worksViewportRef = useRef<HTMLDivElement>(null);
-  const worksRailRef = useRef<HTMLDivElement>(null);
-  const worksOffsetRef = useRef(0);
-  const worksMobileReadyRef = useRef(false);
-  const worksTouchRef = useRef({ active: false, pointerId: -1, startX: 0, startY: 0, moved: false });
-  const worksResumeAtRef = useRef(0);
 
   useEffect(() => {
     document.body.classList.add("is-ready");
@@ -231,78 +225,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const mobilePortfolio = window.matchMedia("(max-width: 820px)");
-    const updatePortfolioMode = () => {
-      setIsMobilePortfolio(mobilePortfolio.matches);
-      worksMobileReadyRef.current = false;
-      if (!mobilePortfolio.matches) {
-        worksTouchRef.current.active = false;
-        worksTouchRef.current.moved = false;
-        setSelectedWork(null);
-      }
-    };
-
-    updatePortfolioMode();
-    mobilePortfolio.addEventListener("change", updatePortfolioMode);
-    return () => mobilePortfolio.removeEventListener("change", updatePortfolioMode);
-  }, []);
-
-  useEffect(() => {
-    let animationFrame = 0;
-    let previousTime = performance.now();
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const normalizeOffset = (offset: number, cycleWidth: number) => {
-      if (!cycleWidth) return 0;
-      return ((offset % cycleWidth) - cycleWidth) % cycleWidth;
-    };
-
-    const animate = (time: number) => {
-      const rail = worksRailRef.current;
-      const viewport = worksViewportRef.current;
-      if (rail && viewport) {
-        const sets = rail.querySelectorAll<HTMLElement>(".worksSet");
-        const cycleWidth = sets.length > 1 ? sets[1].offsetLeft - sets[0].offsetLeft : 0;
-
-        if (isMobilePortfolio) {
-          rail.style.transform = "none";
-          if (cycleWidth) {
-            if (!worksMobileReadyRef.current) {
-              viewport.scrollLeft = cycleWidth;
-              worksMobileReadyRef.current = true;
-            }
-
-            const canMove = !worksTouchRef.current.active && time >= worksResumeAtRef.current;
-            if (canMove) {
-              if (viewport.scrollLeft < cycleWidth * 0.5) viewport.scrollLeft += cycleWidth;
-              if (viewport.scrollLeft > cycleWidth * 1.5) viewport.scrollLeft -= cycleWidth;
-            }
-
-            if (canMove && !reduceMotion) {
-              viewport.scrollLeft += Math.min(time - previousTime, 50) * 0.032;
-            }
-          }
-        } else {
-          viewport.scrollLeft = 0;
-          if (!reduceMotion) worksOffsetRef.current -= Math.min(time - previousTime, 50) * 0.032;
-          worksOffsetRef.current = normalizeOffset(worksOffsetRef.current, cycleWidth);
-          rail.style.transform = `translate3d(${worksOffsetRef.current}px, 0, 0)`;
-        }
-      }
-      previousTime = time;
-      animationFrame = requestAnimationFrame(animate);
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [isMobilePortfolio]);
-
-  useEffect(() => {
-    if (selectedWork === null) return;
+    if (!isGalleryOpen && selectedWork === null) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedWork(null);
+      if (event.key === "Escape") {
+        if (selectedWork !== null) setSelectedWork(null);
+        else setIsGalleryOpen(false);
+      }
       if (event.key === "ArrowLeft") setSelectedWork((current) => current === null ? null : (current - 1 + works.length) % works.length);
       if (event.key === "ArrowRight") setSelectedWork((current) => current === null ? null : (current + 1) % works.length);
     };
@@ -311,37 +241,7 @@ export default function Home() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [selectedWork]);
-
-  const handleWorksPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isMobilePortfolio || event.button !== 0) return;
-    worksTouchRef.current = {
-      active: true,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      moved: false,
-    };
-    worksResumeAtRef.current = Number.POSITIVE_INFINITY;
-  };
-
-  const handleWorksPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    const touch = worksTouchRef.current;
-    if (!touch.active || touch.pointerId !== event.pointerId) return;
-    if (Math.hypot(event.clientX - touch.startX, event.clientY - touch.startY) > 8) touch.moved = true;
-  };
-
-  const handleWorksPointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
-    const touch = worksTouchRef.current;
-    if (!touch.active || touch.pointerId !== event.pointerId) return;
-    touch.active = false;
-    worksResumeAtRef.current = performance.now() + 1400;
-    window.setTimeout(() => { worksTouchRef.current.moved = false; }, 0);
-  };
-
-  const openWork = (index: number) => {
-    if (isMobilePortfolio && !worksTouchRef.current.moved) setSelectedWork(index);
-  };
+  }, [isGalleryOpen, selectedWork]);
 
   return (
     <main>
@@ -381,7 +281,6 @@ export default function Home() {
 
         <div className="heroVisual" aria-label="Нонна, мастер ClayTone Nail Studio">
           <div className="portraitFrame"><img src="/assets/nonna-portrait.jpeg" alt="Нонна — мастер ClayTone Nail Studio" /></div>
-          <div className="floatingWork"><img src="/assets/hero-work.jpeg" alt="Работа Нонны — маникюр с объёмным дизайном" /></div>
           <div className="experience"><strong>8</strong><span>лет<br />опыта</span></div>
           <span className="softRing ringOne" /><span className="softRing ringTwo" />
         </div>
@@ -405,37 +304,21 @@ export default function Home() {
           <h2>Работы, которые<br /><em>говорят сами за себя</em></h2>
           <span>Только реальные фотографии работ мастера</span>
         </div>
-        <div
-          className="worksViewport reveal"
-          ref={worksViewportRef}
-          data-reveal
-          onPointerDown={isMobilePortfolio ? handleWorksPointerDown : undefined}
-          onPointerMove={isMobilePortfolio ? handleWorksPointerMove : undefined}
-          onPointerUp={isMobilePortfolio ? handleWorksPointerEnd : undefined}
-          onPointerCancel={isMobilePortfolio ? handleWorksPointerEnd : undefined}
-          aria-label="Галерея работ Нонны"
-        >
-          <div className="worksRail" ref={worksRailRef}>
-            {[0, 1, 2].map((set) => (
-              <div className="worksSet" aria-hidden={set > 0 ? true : undefined} key={set}>
-                {works.map((work, index) => (
-                  <figure className={`workCard workCard${index + 1}`} key={`${set}-${work}`}>
-                    <button
-                      className="imageWrap"
-                      type="button"
-                      onClick={() => openWork(index)}
-                      disabled={!isMobilePortfolio}
-                      tabIndex={set > 0 ? -1 : undefined}
-                      aria-label={`Увеличить работу Нонны ${index + 1}`}
-                    >
-                      <img src={`/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={set > 0 || index > 2 ? "lazy" : undefined} draggable={false} />
-                    </button>
-                    <figcaption><span>ClayTone / 0{index + 1}</span><span>Маникюр</span></figcaption>
-                  </figure>
-                ))}
-              </div>
-            ))}
-          </div>
+        <div className="worksGrid reveal" data-reveal aria-label="Избранные работы Нонны">
+          {works.slice(0, 3).map((work, index) => (
+            <figure className={`workCard workCard${index + 1}`} key={work}>
+              <button className="imageWrap" type="button" onClick={() => setSelectedWork(index)} aria-label={`Увеличить работу Нонны ${index + 1}`}>
+                <img src={`/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} draggable={false} />
+              </button>
+              <figcaption><span>ClayTone / 0{index + 1}</span><span>Маникюр</span></figcaption>
+            </figure>
+          ))}
+        </div>
+        <div className="worksGalleryAction reveal" data-reveal>
+          <button className="galleryButton" type="button" onClick={() => setIsGalleryOpen(true)}>
+            <span>Смотреть все работы</span>
+            <span className="galleryButtonArrow" aria-hidden="true">↗︎</span>
+          </button>
         </div>
         <div className="worksGalleryAction reveal" data-reveal>
           <button className="galleryButton" type="button" onClick={() => setSelectedWork(0)}>
@@ -445,6 +328,25 @@ export default function Home() {
           <small>{works.length} работ в галерее</small>
         </div>
       </section>
+
+      {isGalleryOpen && (
+        <div className="galleryModal" onClick={(event) => event.target === event.currentTarget && setIsGalleryOpen(false)}>
+          <div className="galleryDialog" role="dialog" aria-modal="true" aria-labelledby="gallery-title">
+            <div className="galleryHeader">
+              <div><span>Портфолио ClayTone</span><h3 id="gallery-title">Все работы</h3></div>
+              <button className="galleryClose" type="button" onClick={() => setIsGalleryOpen(false)} aria-label="Закрыть галерею">×</button>
+            </div>
+            <div className="galleryGrid">
+              {works.map((work, index) => (
+                <button className="galleryTile" type="button" key={work} onClick={() => setSelectedWork(index)} aria-label={`Увеличить работу Нонны ${index + 1}`}>
+                  <img src={`/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={index > 2 ? "lazy" : undefined} />
+                  <span>0{index + 1}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedWork !== null && (
         <div className="workLightbox" onClick={(event) => event.target === event.currentTarget && setSelectedWork(null)}>
@@ -499,7 +401,7 @@ export default function Home() {
       </section>
 
       <section className="aboutSection" id="about">
-        <div className="aboutPortrait reveal" data-reveal><img src="/assets/nonna-portrait.jpeg" alt="Нонна, мастер маникюра и педикюра" loading="lazy" /></div>
+        <div className="aboutPortrait reveal" data-reveal><img src="/assets/nonna-about.webp" alt="Нонна, мастер маникюра и педикюра" loading="lazy" /></div>
         <div className="aboutText reveal" data-reveal>
           <p>О мастере</p>
           <h2>«Мне важно, чтобы вам было <em>спокойно</em> на каждом этапе»</h2>
