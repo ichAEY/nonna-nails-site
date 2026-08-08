@@ -254,7 +254,8 @@ body a.yButton { display:none!important; }
   .workCard:nth-child(even) { margin-top:0; }
   .worksGalleryAction { margin:38px 20px 0; }
   .galleryButton { width:100%; max-width:380px; min-width:0; min-height:56px; padding:0 9px 0 20px; }
-  .galleryButtonArrow { width:46px; height:46px; flex-basis:46px; padding:0 0 1px 1px; font-size:22px; }
+  .galleryButtonArrow { width:46px; height:46px; flex-basis:46px; padding:0; background:#f3e4df; color:#542e37; font-size:0; font-family:Arial,Helvetica,sans-serif; font-variant-emoji:text; }
+  .galleryButtonArrow::before { content:'↗︎'; font-size:20px; line-height:1; }
   .galleryModal { padding:10px; align-items:end; }
   .galleryDialog { width:100%; max-height:94svh; padding:20px 14px 18px; border-radius:26px 26px 18px 18px; }
   .galleryHeader { padding:2px 4px 18px; }
