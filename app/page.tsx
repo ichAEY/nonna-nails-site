@@ -345,7 +345,10 @@ export default function Home() {
             <span className="heroAccentLine"><em>с вниманием</em></span>
             <span>к деталям</span>
           </h1>
-          <p className="heroLead">Аккуратная работа, стерильные инструменты и спокойная атмосфера — без спешки и компромиссов.</p>
+          <p className="heroLead">
+            <span>Аккуратная работа, стерильные инструменты и спокойная атмосфера — без спешки и компромиссов.</span>
+            <span>ClayTone — пространство, где маникюр создаётся с вниманием к деталям, вашим пожеланиям и образу жизни. Здесь эстетика сочетается с комфортом, а результат остаётся красивым и удобным каждый день.</span>
+          </p>
           <div className="heroActions">
             <a className="button primaryButton ms_booking" href={calendarHref} data-url={calendarDataUrl} target="_blank" rel="noreferrer">Выбрать время <span className="textArrow" aria-hidden="true">↗︎</span></a>
             <a className="textLink" href="#works">Посмотреть работы ↓</a>
@@ -411,7 +414,7 @@ export default function Home() {
         <div className="worksGalleryAction reveal" data-reveal>
           <button className="galleryButton" type="button" onClick={() => setIsGalleryOpen(true)}>
             <span>Смотреть все работы</span>
-            <span className="galleryButtonArrow" aria-hidden="true">↗︎</span>
+            <span className="galleryButtonArrow" aria-hidden="true">↗</span>
           </button>
         </div>
       </section>
