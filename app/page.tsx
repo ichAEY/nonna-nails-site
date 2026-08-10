@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const basePath = "/nonna-nails-site";
+
 const hands = [
   {
     id: 26277760,
@@ -356,7 +358,7 @@ export default function Home() {
         </div>
 
         <div className="heroVisual" aria-label="Нонна, мастер ClayTone Nail Studio">
-          <div className="portraitFrame"><img src="/assets/nonna-portrait.jpeg" alt="Нонна — мастер ClayTone Nail Studio" /></div>
+          <div className="portraitFrame"><img src={`${basePath}/assets/nonna-portrait.jpeg`} alt="Нонна — мастер ClayTone Nail Studio" /></div>
           <div className="experience"><strong>8</strong><span>лет<br />опыта</span></div>
           <span className="softRing ringOne" /><span className="softRing ringTwo" />
         </div>
@@ -402,7 +404,7 @@ export default function Home() {
                       tabIndex={set > 0 ? -1 : undefined}
                       aria-label={`Увеличить работу Нонны ${index + 1}`}
                     >
-                      <img src={`/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={set > 0 || index > 2 ? "lazy" : undefined} draggable={false} />
+                      <img src={`${basePath}/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={set > 0 || index > 2 ? "lazy" : undefined} draggable={false} />
                     </button>
                     <figcaption><span>ClayTone / 0{index + 1}</span><span>Маникюр</span></figcaption>
                   </figure>
@@ -429,7 +431,7 @@ export default function Home() {
             <div className="galleryGrid">
               {works.map((work, index) => (
                 <button className="galleryTile" type="button" key={work} onClick={() => setSelectedWork(index)} aria-label={`Увеличить работу Нонны ${index + 1}`}>
-                  <img src={`/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={index > 2 ? "lazy" : undefined} />
+                  <img src={`${basePath}/assets/work-${work}.webp`} alt={`Работа Нонны ${index + 1}`} loading={index > 2 ? "lazy" : undefined} />
                   <span>0{index + 1}</span>
                 </button>
               ))}
@@ -443,7 +445,7 @@ export default function Home() {
           <div className="workLightboxDialog" role="dialog" aria-modal="true" aria-label={`Работа Нонны ${selectedWork + 1}`}>
             <button className="lightboxClose" type="button" onClick={() => setSelectedWork(null)} aria-label="Закрыть увеличенную фотографию">×</button>
             <button className="lightboxNav lightboxPrev" type="button" onClick={() => setSelectedWork((selectedWork - 1 + works.length) % works.length)} aria-label="Предыдущая работа">←</button>
-            <img src={`/assets/work-${works[selectedWork]}.webp`} alt={`Работа Нонны ${selectedWork + 1} в увеличенном виде`} />
+            <img src={`${basePath}/assets/work-${works[selectedWork]}.webp`} alt={`Работа Нонны ${selectedWork + 1} в увеличенном виде`} />
             <button className="lightboxNav lightboxNext" type="button" onClick={() => setSelectedWork((selectedWork + 1) % works.length)} aria-label="Следующая работа">→</button>
             <p><span>ClayTone</span><span>{String(selectedWork + 1).padStart(2, "0")} / {String(works.length).padStart(2, "0")}</span></p>
           </div>
@@ -491,7 +493,7 @@ export default function Home() {
       </section>
 
       <section className="aboutSection" id="about">
-        <div className="aboutPortrait reveal" data-reveal><img src="/assets/nonna-about.webp" alt="Нонна, мастер маникюра и педикюра" loading="lazy" /></div>
+        <div className="aboutPortrait reveal" data-reveal><img src={`${basePath}/assets/nonna-about.webp`} alt="Нонна, мастер маникюра и педикюра" loading="lazy" /></div>
         <div className="aboutText reveal" data-reveal>
           <p>О мастере</p>
           <h2>«Мне важно, чтобы вам было <em>спокойно</em> на каждом этапе»</h2>
