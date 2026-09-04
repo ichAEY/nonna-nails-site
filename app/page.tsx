@@ -199,7 +199,12 @@ export default function Home() {
   const worksResumeAtRef = useRef(0);
 
   useEffect(() => {
+    const demoMode = new URLSearchParams(window.location.search).get("demo") === "1";
     document.body.classList.add("is-ready");
+    if (demoMode) {
+      document.body.classList.add("demo-mode");
+      document.documentElement.classList.add("demo-mode");
+    }
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
       { threshold: 0.14 }
@@ -221,17 +226,24 @@ export default function Home() {
     if (footer) footerObserver.observe(footer);
 
     const onScroll = () => document.documentElement.style.setProperty("--scroll", String(window.scrollY));
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    if (!demoMode) {
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
     return () => {
       observer.disconnect();
       footerObserver.disconnect();
-      window.removeEventListener("scroll", onScroll);
+      if (!demoMode) window.removeEventListener("scroll", onScroll);
       bookingScript.remove();
+      document.body.classList.remove("demo-mode");
+      document.documentElement.classList.remove("demo-mode");
     };
   }, []);
 
   useEffect(() => {
+    const demoMode = new URLSearchParams(window.location.search).get("demo") === "1";
+    if (demoMode) return;
+
     let animationFrame = 0;
     let previousTime = performance.now();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
