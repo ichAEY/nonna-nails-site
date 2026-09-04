@@ -307,6 +307,27 @@ body a.yButton { display:none!important; }
   .mobileBookingHidden { opacity:0; transform:translateY(90px); pointer-events:none; }
 }
 
+
+/* Recording-only mode: enabled exclusively by ?demo=1. Normal visitors are unchanged. */
+html.demo-mode { scroll-behavior:auto!important; }
+body.demo-mode *, body.demo-mode *::before, body.demo-mode *::after {
+  animation:none!important;
+  transition:none!important;
+}
+body.demo-mode .intro { display:none!important; }
+body.demo-mode .reveal,
+body.demo-mode .hero h1 span,
+body.demo-mode .heroLead,
+body.demo-mode .heroActions,
+body.demo-mode .portraitFrame {
+  opacity:1!important;
+  transform:none!important;
+}
+body.demo-mode .reviewCardInner:after,
+body.demo-mode .bookingCtaShine:after {
+  display:none!important;
+}
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
   .reveal,.hero h1 span,.heroLead,.heroActions,.portraitFrame,.floatingWork { opacity:1!important; transform:none!important; }
