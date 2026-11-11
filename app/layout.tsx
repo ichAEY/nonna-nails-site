@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,10 +22,7 @@ export default function RootLayout({
     <html lang="ru">
       <body>
         {children}
-        <Script
-          src="//code.jivo.ru/widget/UKYCyJNH7j"
-          strategy="afterInteractive"
-        />
+        <script src="//code.jivo.ru/widget/UKYCyJNH7j" async></script>
       </body>
     </html>
   );
