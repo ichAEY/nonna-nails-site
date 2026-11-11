@@ -20,10 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body>
-        {children}
-        <script src="//code.jivo.ru/widget/UKYCyJNH7j" async></script>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
